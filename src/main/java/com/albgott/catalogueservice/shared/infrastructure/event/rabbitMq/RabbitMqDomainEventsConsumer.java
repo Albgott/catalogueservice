@@ -1,6 +1,6 @@
 package com.albgott.catalogueservice.shared.infrastructure.event.rabbitMq;
 
-import com.albgott.catalogueservice.shared.domain.Utils;
+import com.albgott.catalogueservice.shared.utils.Utils;
 import com.albgott.catalogueservice.shared.domain.event.DomainEvent;
 import com.albgott.catalogueservice.shared.infrastructure.event.DomainEventJsonUtils;
 import com.albgott.catalogueservice.shared.infrastructure.event.DomainEventSubscribersInformation;
