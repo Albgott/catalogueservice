@@ -4,6 +4,7 @@ import com.albgott.catalogueservice.category.domain.model.Category;
 import com.albgott.catalogueservice.category.domain.repository.CategoryRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,5 +41,17 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public void delete(Category category) {
         repository.delete(category);
+    }
+
+    @Override
+    public List<Category> getCategoriesFromIds(List<UUID> ids){
+        if(ids == null) return null;
+        List<Category> categories = new ArrayList<>();
+        for(UUID id: ids){
+            Optional<Category> optCategory = repository.findById(id);
+            if(optCategory.isEmpty()) continue;
+            categories.add(optCategory.get());
+        }
+        return categories;
     }
 }

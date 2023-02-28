@@ -12,4 +12,5 @@ public interface CategoryRepository {
     boolean isNameUsedOnBusiness(String name, UUID businessId);
     void save(Category category);
     void delete(Category category);
+    List<Category> getCategoriesFromIds(List<UUID> ids);
 }

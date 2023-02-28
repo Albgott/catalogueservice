@@ -4,10 +4,7 @@ import com.albgott.catalogueservice.category.domain.event.CategoryDeletedDomainE
 import com.albgott.catalogueservice.category.domain.event.CategoryDescriptionModifiedDomainEvent;
 import com.albgott.catalogueservice.category.domain.event.CategoryNameModifiedDomainEvent;
 import com.albgott.catalogueservice.shared.domain.model.AggregateRoot;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.NonNull;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.WordUtils;
@@ -17,9 +14,11 @@ import java.util.UUID;
 @Entity(name = "categories")
 @Table(name = "categories", uniqueConstraints = @UniqueConstraint(columnNames = {"business_id","name"}))
 public class Category extends AggregateRoot {
+    @Column(name = "business_id", nullable = false)
     private UUID businessId;
     @Id
     private UUID id;
+    @Column(nullable = false)
     private String name;
     private String description;
 

@@ -17,7 +17,7 @@ public class CatalogueserviceApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(AuthserviceApplication.class, args);
+		SpringApplication.run(CatalogueserviceApplication.class, args);
 	}
 
 }
