@@ -1,7 +1,7 @@
 package com.albgott.catalogueservice.product.adapter.REST;
 
-import com.albgott.catalogueservice.product.create.CreateProductCommand;
-import com.albgott.catalogueservice.product.create.CreateProductService;
+import com.albgott.catalogueservice.product.application.create.CreateProductCommand;
+import com.albgott.catalogueservice.product.application.create.CreateProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

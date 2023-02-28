@@ -1,4 +1,4 @@
-package com.albgott.catalogueservice.product.create;
+package com.albgott.catalogueservice.product.application.create;
 
 import lombok.NonNull;
 
