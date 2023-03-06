@@ -1,24 +1,19 @@
 package com.albgott.catalogueservice.shared.domain.model;
 
-import com.albgott.catalogueservice.shared.domain.event.DomainEvent;
 import com.albgott.catalogueservice.shared.domain.exception.AppError;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-public abstract class AggregateRoot {
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
+public abstract class ValueObject {
     private final Set<AppError> errors = new HashSet<>();
 
-    final public List<DomainEvent> pullDomainEvents(){
-        List<DomainEvent> events = new ArrayList<>(domainEvents);
-        domainEvents.clear();
-        return events;
+    public ValueObject() {
     }
 
-    final protected void record(DomainEvent event){
-        domainEvents.add(event);
-    }
+    protected abstract String value();
 
     protected void error(AppError error){
         errors.add(error);
@@ -34,7 +29,7 @@ public abstract class AggregateRoot {
         return errors;
     }
 
-    protected void validate(){}
+    protected void validate(){};
 
     protected void ifNullError(Object object, AppError error){
         if(object == null) errors.add(error);
@@ -47,5 +42,4 @@ public abstract class AggregateRoot {
     protected void ifEmptyError(Collection<?> collection, AppError error){
         if(collection.isEmpty()) errors.add(error);
     }
-
 }

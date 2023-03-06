@@ -1,115 +1,100 @@
 package com.albgott.catalogueservice.product.domain.model;
 
-import com.albgott.catalogueservice.category.domain.model.Category;
-import com.albgott.catalogueservice.product.domain.event.*;
+import com.albgott.catalogueservice.file.domain.model.File;
+import com.albgott.catalogueservice.shared.domain.exception.AppError;
 import com.albgott.catalogueservice.shared.domain.model.AggregateRoot;
-import com.albgott.catalogueservice.shared.utils.StringFormatUtils;
 import jakarta.persistence.*;
-import lombok.NonNull;
-import org.apache.commons.lang.Validate;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Entity(name = "products")
-@Table(name = "products", uniqueConstraints = @UniqueConstraint(columnNames = {"business_id","name"}))
+@Entity
+@Table(name = "products", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"business_id","name"}),
+        @UniqueConstraint(columnNames = {"business_id","code"})
+})
 public class Product extends AggregateRoot {
-    @Column(name = "business_id",nullable = false)
+    private static final int MAX_IMAGES = 5;
+
+    @Column(name = "business_id", nullable = false)
     private UUID businessId;
+
     @Id
     private UUID id;
-    @Column(nullable = false)
-    private String name;
-    private String description;
 
-    @ManyToMany
-    private Set<Category> categories;
+    @Embedded
+    @Column(name = "name", nullable = false)
+    private ProductName name;
+    @Embedded
+    private InternalCode code;
+    @Embedded
+    private ProductDescription description;
 
-    protected Product() {
+
+    @OneToMany()
+    private Set<File> images = new HashSet<>();
+
+    public void removeImage(File image){
+        images.remove(image);
     }
 
-    public Product(@NonNull UUID businessId, @NonNull  UUID id, @NonNull  String name, String description, Set<Category> categories) {
-        Validate.notEmpty(name.trim());
-        this.businessId = businessId;
-        this.id = id;
-        this.name = StringFormatUtils.capitalize(name.trim());
-        this.description = description == null? "" : description;
-        this.categories = categories == null? new HashSet<>() : categories.stream().filter(c -> c.businessId().equals(businessId)).collect(Collectors.toSet());
-    }
-
-    public void modifyDescription(String description){
-        if(description == null || description.trim().equals(this.description)) return;
-        this.description = description.trim();
-        record(new ProductDescriptionModifiedDomainEvent(this.id.toString(),this.description));
-    }
-
-    public void modifyName(String name){
-        if(name == null || name.trim().equals(this.name)) return;
-        this.name = StringFormatUtils.capitalize(name.trim());
-        record(new ProductNameModifiedDomainEvent(this.id.toString(),this.name));
-    }
-
-    public void addCategories(List<Category> categories){
-        List<Category> categoriesToAdd = new ArrayList<>();
-        for(Category category: categories){
-            if(!category.businessId().equals(businessId)) continue;
-            if(this.categories.contains(category)) continue;
-            categoriesToAdd.add(category);
+    public void addImage(File image){
+        if(image == null || !image.isValid()) return;
+        if(!businessId.equals(image.businessId())){
+            error(new AppError("product.image.not_from_business"));
+            return;
         }
 
-        if(categoriesToAdd.isEmpty()) return;
-
-        this.categories.addAll(categoriesToAdd);
-        record(
-                new ProductAddedToCategoriesDomainEvent(id.toString(), getCategoriesIds(categoriesToAdd))
-        );
-    }
-
-    public void removeCategories(List<Category> categories){
-        List<Category> categoriesToRemove = new ArrayList<>();
-        for(Category category: categories){
-            if(!category.businessId().equals(businessId)) continue;
-            if(!this.categories.contains(category)) continue;
-            categoriesToRemove.add(category);
+        if(!canAddMoreImages()){
+            error(new AppError("product.max_images"));
+            return;
         }
 
-        if(categoriesToRemove.isEmpty()) return;
-
-        categoriesToRemove.forEach(this.categories::remove);
-        record(
-                new ProductRemovedFromCategoriesDomainEvent(id.toString(), getCategoriesIds(categoriesToRemove))
-        );
+        images.add(image);
     }
 
-    public void delete(){
-        record(new ProductDeletedDomainEvent(id.toString()));
+    public void modifyName(ProductName name){
+        if(name == null || !name.isValid()) return;
+        this.name = name;
     }
 
-    public String[] getCategoriesIds(){
-        return getCategoriesIds(this.categories.stream().toList());
+    public void modifyDescription(ProductDescription description){
+        if(description == null || !description.isValid()) return;
+        this.description = description;
     }
 
-    private String[] getCategoriesIds(List<Category> categories){
-        return categories.stream().map(c -> c.id().toString()).toArray(String[]::new);
+    public void modifyCode(InternalCode code){
+        if(code == null || !code.isValid()) return;
+        this.code = code;
     }
 
-    public UUID businessId() {
-        return businessId;
+    public String businessId() {
+        return businessId.toString();
     }
 
-    public UUID id() {
-        return id;
+    public String id() {
+        return id.toString();
+    }
+
+    public String code() {
+        return code.value();
     }
 
     public String name() {
-        return name;
+        return name.value();
     }
 
     public String description() {
-        return description;
+        return description.value();
     }
 
-    public Set<Category> categories() {
-        return categories;
+    public Set<String> imagesIds() {
+        return images.stream().map(i -> i.id().toString()).collect(Collectors.toSet());
+    }
+
+    public boolean canAddMoreImages(){
+        return images.size() < MAX_IMAGES;
     }
 }
