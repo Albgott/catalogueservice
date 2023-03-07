@@ -1,9 +1,13 @@
 package com.albgott.catalogueservice.product.application;
 
 import com.albgott.catalogueservice.product.domain.model.Product;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+@NoArgsConstructor
+@Getter
 public class ProductResponse {
     private String business_id;
     private String id;

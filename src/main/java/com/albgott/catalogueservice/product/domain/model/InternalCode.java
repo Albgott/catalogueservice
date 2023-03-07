@@ -16,7 +16,7 @@ public class InternalCode extends ValueObject {
     }
 
     @Override
-    protected String value() {
+    public String value() {
         return code;
     }
 
@@ -32,4 +32,5 @@ public class InternalCode extends ValueObject {
     public int hashCode() {
         return Objects.hash(code);
     }
+
 }

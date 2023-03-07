@@ -1,9 +1,9 @@
 package com.albgott.catalogueservice.product.domain.model;
 
 import com.albgott.catalogueservice.file.domain.model.File;
-import com.albgott.catalogueservice.shared.domain.exception.AppError;
 import com.albgott.catalogueservice.shared.domain.model.AggregateRoot;
 import jakarta.persistence.*;
+import lombok.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"business_id","name"}),
-        @UniqueConstraint(columnNames = {"business_id","code"})
+        @UniqueConstraint(columnNames = {"business_id","name"})
 })
 public class Product extends AggregateRoot {
     private static final int MAX_IMAGES = 5;
@@ -33,40 +32,51 @@ public class Product extends AggregateRoot {
     private ProductDescription description;
 
 
-    @OneToMany()
+    @OneToMany(fetch = FetchType.EAGER)
     private Set<File> images = new HashSet<>();
+
+    protected Product() {
+    }
+
+    public Product(
+            @NonNull UUID businessId,
+            @NonNull UUID id,
+            @NonNull ProductName name,
+            InternalCode code,
+            ProductDescription description
+    ) {
+        this.businessId = businessId;
+        this.id = id;
+        this.name = name;
+        this.code = code ==null ? new InternalCode() : code;
+        this.description = description ==null ? new ProductDescription() : description;
+    }
 
     public void removeImage(File image){
         images.remove(image);
     }
 
     public void addImage(File image){
-        if(image == null || !image.isValid()) return;
-        if(!businessId.equals(image.businessId())){
-            error(new AppError("product.image.not_from_business"));
-            return;
-        }
+        if(image == null ) return;
+        if(!businessId.equals(image.businessId())){return;}
 
-        if(!canAddMoreImages()){
-            error(new AppError("product.max_images"));
-            return;
-        }
+        if(!canAddMoreImages()){return; }
 
         images.add(image);
     }
 
     public void modifyName(ProductName name){
-        if(name == null || !name.isValid()) return;
+        if(name == null) return;
         this.name = name;
     }
 
     public void modifyDescription(ProductDescription description){
-        if(description == null || !description.isValid()) return;
+        if(description == null) return;
         this.description = description;
     }
 
     public void modifyCode(InternalCode code){
-        if(code == null || !code.isValid()) return;
+        if(code == null) return;
         this.code = code;
     }
 
@@ -96,5 +106,8 @@ public class Product extends AggregateRoot {
 
     public boolean canAddMoreImages(){
         return images.size() < MAX_IMAGES;
+    }
+
+    public void delete() {
     }
 }

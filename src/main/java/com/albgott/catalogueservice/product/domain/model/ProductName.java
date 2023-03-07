@@ -1,29 +1,31 @@
 package com.albgott.catalogueservice.product.domain.model;
 
-import com.albgott.catalogueservice.shared.domain.exception.AppError;
 import com.albgott.catalogueservice.shared.domain.model.ValueObject;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Objects;
 
 public class ProductName extends ValueObject {
     private final String name;
 
-    public ProductName() {
+    private ProductName() {
         name = "";
     }
 
     public ProductName(String name) {
-        this.name = name == null? "" : name.trim().toLowerCase();
+        validate(name);
+        this.name = name.trim().toLowerCase();
     }
 
-    @Override
-    protected void validate() {
-        ifNullError(name,new AppError("productName.empty"));
-        ifEmptyError(name,new AppError("productName.empty"));
+    private void validate(String name) {
+        if(name == null || StringUtils.isEmpty(name.trim())){
+            throw new IllegalArgumentException();
+        }
     }
 
+
     @Override
-    protected String value() {
+    public String value() {
         return name;
     }
 

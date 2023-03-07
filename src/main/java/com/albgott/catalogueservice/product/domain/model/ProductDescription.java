@@ -1,6 +1,5 @@
 package com.albgott.catalogueservice.product.domain.model;
 
-import com.albgott.catalogueservice.shared.domain.exception.AppError;
 import com.albgott.catalogueservice.shared.domain.model.ValueObject;
 
 import java.util.Objects;
@@ -17,7 +16,7 @@ public class ProductDescription extends ValueObject {
     }
 
     @Override
-    protected String value() {
+    public String value() {
         return description;
     }
 
