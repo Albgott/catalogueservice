@@ -43,4 +43,9 @@ public class Category {
     public String name() {
         return name;
     }
+
+    public void modifyName(String name) {
+        if(name == null || StringUtils.isEmpty(name.trim())) return;
+        setName(name);
+    }
 }
