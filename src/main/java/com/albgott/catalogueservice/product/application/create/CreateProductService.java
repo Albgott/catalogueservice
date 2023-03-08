@@ -1,6 +1,8 @@
 package com.albgott.catalogueservice.product.application.create;
 
-import com.albgott.catalogueservice.file.domain.repository.FileRepository;
+import com.albgott.catalogueservice.category.domain.CategoryService;
+import com.albgott.catalogueservice.category.domain.model.Category;
+import com.albgott.catalogueservice.category.domain.repository.CategoryRepository;
 import com.albgott.catalogueservice.product.domain.model.InternalCode;
 import com.albgott.catalogueservice.product.domain.model.Product;
 import com.albgott.catalogueservice.product.domain.model.ProductDescription;
@@ -9,18 +11,25 @@ import com.albgott.catalogueservice.product.domain.repository.ProductRepository;
 import com.albgott.catalogueservice.shared.application.CommandUseCase;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class CreateProductService extends CommandUseCase<CreateProductCommand> {
 
     private final ProductRepository productRepository;
-    private final FileRepository fileRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CreateProductService(ProductRepository productRepository, FileRepository fileRepository) {
+    public CreateProductService(ProductRepository productRepository,
+                                CategoryRepository categoryRepository,
+                                CategoryService categoryService) {
         this.productRepository = productRepository;
-        this.fileRepository = fileRepository;
+        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
+
 
     @Override
     protected void doExec(CreateProductCommand command) {
@@ -30,6 +39,7 @@ public class CreateProductService extends CommandUseCase<CreateProductCommand> {
     }
 
     private Product getFromCommand(CreateProductCommand command) {
+        Set<Category> categories = new HashSet<>(categoryService.getCategoriesFromIds(command.categoriesIds()));
         UUID businessId = command.businessId();
         UUID id = command.productId();
         ProductName name = new ProductName(command.productName());
@@ -42,7 +52,7 @@ public class CreateProductService extends CommandUseCase<CreateProductCommand> {
                 || productRepository.isIdUsedInBusiness(id, businessId)
         ) throw new RuntimeException("Cant create product");
 
-        return new Product(businessId,id,name,code,description);
+        return new Product(businessId,id,name,code,description, categories);
     }
 
 }

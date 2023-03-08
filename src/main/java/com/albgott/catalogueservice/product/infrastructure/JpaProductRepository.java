@@ -1,5 +1,6 @@
 package com.albgott.catalogueservice.product.infrastructure;
 
+import com.albgott.catalogueservice.category.domain.model.Category;
 import com.albgott.catalogueservice.product.domain.model.InternalCode;
 import com.albgott.catalogueservice.product.domain.model.Product;
 import com.albgott.catalogueservice.product.domain.model.ProductName;
@@ -15,4 +16,5 @@ public interface JpaProductRepository extends JpaRepository<Product, UUID> {
     boolean existsByNameAndBusinessId(ProductName name, UUID businessId);
     boolean existsByCodeAndBusinessId(InternalCode code, UUID businessId);
     boolean existsByIdAndBusinessId(UUID id, UUID businessId);
+    List<Product> findByBusinessIdAndCategoriesContaining(UUID businessId, Category category);
 }

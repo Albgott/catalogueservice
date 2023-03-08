@@ -1,5 +1,6 @@
 package com.albgott.catalogueservice.product.infrastructure;
 
+import com.albgott.catalogueservice.category.domain.model.Category;
 import com.albgott.catalogueservice.product.domain.model.InternalCode;
 import com.albgott.catalogueservice.product.domain.model.Product;
 import com.albgott.catalogueservice.product.domain.model.ProductName;
@@ -42,6 +43,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public List<Product> findAllFromBusiness(UUID businessId) {
         return repository.findByBusinessId(businessId);
+    }
+
+    @Override
+    public List<Product> findAllFromBusinessWithCategory(UUID businessId, Category category) {
+        return repository.findByBusinessIdAndCategoriesContaining(businessId,category);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.albgott.catalogueservice.product.domain.model;
 
+import com.albgott.catalogueservice.category.domain.model.Category;
 import com.albgott.catalogueservice.file.domain.model.File;
 import com.albgott.catalogueservice.shared.domain.model.AggregateRoot;
 import jakarta.persistence.*;
@@ -35,6 +36,9 @@ public class Product extends AggregateRoot {
     @OneToMany(fetch = FetchType.EAGER)
     private Set<File> images = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Category> categories = new HashSet<>();
+
     protected Product() {
     }
 
@@ -43,13 +47,18 @@ public class Product extends AggregateRoot {
             @NonNull UUID id,
             @NonNull ProductName name,
             InternalCode code,
-            ProductDescription description
+            ProductDescription description,
+            Set<Category> categories
     ) {
         this.businessId = businessId;
         this.id = id;
         this.name = name;
         this.code = code ==null ? new InternalCode() : code;
         this.description = description ==null ? new ProductDescription() : description;
+        this.categories = new HashSet<>();
+        if(categories == null) return;
+
+        categories.forEach(this::addToCategory);
     }
 
     public void removeImage(File image){
@@ -75,9 +84,28 @@ public class Product extends AggregateRoot {
         this.description = description;
     }
 
+    public void addToCategory(Category category){
+        if(category == null) return;
+        if(!category.businessId().equals(this.businessId)) return;
+        categories.add(category);
+    }
+
+    public void removeFromCategory(Category category){
+        if(category == null) return;
+        if(!category.businessId().equals(this.businessId)) return;
+        categories.remove(category);
+    }
+
     public void modifyCode(InternalCode code){
         if(code == null) return;
         this.code = code;
+    }
+
+    public boolean canAddMoreImages(){
+        return images.size() < MAX_IMAGES;
+    }
+
+    public void delete() {
     }
 
     public String businessId() {
@@ -104,10 +132,7 @@ public class Product extends AggregateRoot {
         return images.stream().map(i -> i.id().toString()).collect(Collectors.toSet());
     }
 
-    public boolean canAddMoreImages(){
-        return images.size() < MAX_IMAGES;
-    }
-
-    public void delete() {
+    public Set<Category> categories() {
+        return categories;
     }
 }
