@@ -48,4 +48,7 @@ public class Category {
         if(name == null || StringUtils.isEmpty(name.trim())) return;
         setName(name);
     }
+
+    public void delete() {
+    }
 }
