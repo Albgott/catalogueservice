@@ -22,18 +22,21 @@ public class AddImageService extends CommandUseCase<AddProductImageCommand> {
     }
 
     @Override
-    protected void doExec(AddProductImageCommand command) throws IOException {
+    protected void doExec(AddProductImageCommand command) {
         Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if(!product.canAddMoreImages()) throw new RuntimeException("Maximum images reached");
 
-        File image = new File(
-           UUID.randomUUID(),
-           UUID.fromString(product.businessId()),
-           Objects.requireNonNull(command.imageFile().getContentType()),
-           command.imageFile().getBytes()
-        );
+        File image = null;
+        try {
+            image = new File(
+               UUID.randomUUID(),
+               UUID.fromString(product.businessId()),
+               Objects.requireNonNull(command.imageFile().getContentType()),
+               command.imageFile().getBytes()
+            );
+        } catch (IOException ignore) {}
         fileRepository.save(image);
         product.addImage(image);
         productRepository.save(product);

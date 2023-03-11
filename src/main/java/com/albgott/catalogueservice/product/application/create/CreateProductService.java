@@ -2,16 +2,19 @@ package com.albgott.catalogueservice.product.application.create;
 
 import com.albgott.catalogueservice.category.domain.CategoryService;
 import com.albgott.catalogueservice.category.domain.model.Category;
-import com.albgott.catalogueservice.category.domain.repository.CategoryRepository;
+import com.albgott.catalogueservice.product.domain.events.ProductCreatedDomainEvent;
 import com.albgott.catalogueservice.product.domain.model.InternalCode;
 import com.albgott.catalogueservice.product.domain.model.Product;
 import com.albgott.catalogueservice.product.domain.model.ProductDescription;
 import com.albgott.catalogueservice.product.domain.model.ProductName;
 import com.albgott.catalogueservice.product.domain.repository.ProductRepository;
 import com.albgott.catalogueservice.shared.application.CommandUseCase;
+import com.albgott.catalogueservice.shared.domain.event.EventBus;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,23 +22,26 @@ import java.util.UUID;
 public class CreateProductService extends CommandUseCase<CreateProductCommand> {
 
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
+    private final EventBus eventBus;
 
     public CreateProductService(ProductRepository productRepository,
-                                CategoryRepository categoryRepository,
-                                CategoryService categoryService) {
+                                CategoryService categoryService, EventBus eventBus) {
         this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
         this.categoryService = categoryService;
+        this.eventBus = eventBus;
     }
 
 
+    @Transactional
     @Override
     protected void doExec(CreateProductCommand command) {
         Product product = getFromCommand(command);
 
         productRepository.save(product);
+        eventBus.publish(
+                List.of(new ProductCreatedDomainEvent(product))
+        );
     }
 
     private Product getFromCommand(CreateProductCommand command) {

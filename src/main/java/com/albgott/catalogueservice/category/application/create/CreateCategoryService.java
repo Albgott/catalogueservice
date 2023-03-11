@@ -17,7 +17,7 @@ public class CreateCategoryService extends CommandUseCase<CreateCategoryCommand>
     }
 
     @Override
-    protected void doExec(CreateCategoryCommand command) throws IOException {
+    protected void doExec(CreateCategoryCommand command) {
         Category category = new Category(
           command.categoryId(),
           command.businessId(),

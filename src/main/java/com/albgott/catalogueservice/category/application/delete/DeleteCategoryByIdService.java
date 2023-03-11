@@ -22,7 +22,7 @@ public class DeleteCategoryByIdService extends CommandUseCase<DeleteCategoryComm
     }
 
     @Override
-    protected void doExec(DeleteCategoryCommand command) throws IOException {
+    protected void doExec(DeleteCategoryCommand command) {
         Category category = categoryRepository.findById(command.productId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 

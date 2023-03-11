@@ -8,13 +8,9 @@ public abstract class CommandUseCase<C> {
 
     @Transactional
     public final void exec(C command){
-        try {
-            doExec(command);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        doExec(command);
     }
 
-    protected abstract void doExec(C command) throws IOException;
+    protected abstract void doExec(C command);
 
 }

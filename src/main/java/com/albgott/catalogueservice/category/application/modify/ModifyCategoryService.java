@@ -16,7 +16,7 @@ public class ModifyCategoryService extends CommandUseCase<ModifyCategoryCommand>
     }
 
     @Override
-    protected void doExec(ModifyCategoryCommand command) throws IOException {
+    protected void doExec(ModifyCategoryCommand command) {
         Category category = categoryRepository.findById(command.categoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 

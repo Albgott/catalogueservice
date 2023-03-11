@@ -26,7 +26,7 @@ public class ManageProductCategoriesService extends CommandUseCase<ManageCategor
     }
 
     @Override
-    protected void doExec(ManageCategoriesCommand command) throws IOException {
+    protected void doExec(ManageCategoriesCommand command) {
         Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 

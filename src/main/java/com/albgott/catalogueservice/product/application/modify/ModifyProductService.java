@@ -20,7 +20,7 @@ public class ModifyProductService extends CommandUseCase<ModifyProductCommand> {
     }
 
     @Override
-    protected void doExec(ModifyProductCommand command) throws IOException {
+    protected void doExec(ModifyProductCommand command) {
         Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
